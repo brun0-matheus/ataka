@@ -33,11 +33,6 @@ class TargetJobGenerator:
                     await job_queue.send_message(JobMessage(action=JobAction.CANCEL, job_id=job.id))
 
             while True:
-                if (sleep_duration := self._ctf.get_start_time() - time.time()) > 0:
-                    print(f"CTF not started yet, sleeping for {int(sleep_duration)} seconds...")
-                    await sleep(min(self._ctf.get_round_time(), sleep_duration))
-                    continue
-
                 print("New tick")
                 all_targets = self._ctf.get_targets()
 
@@ -90,6 +85,11 @@ class TargetJobGenerator:
 
                     for job in job_list:
                         await job_queue.send_message(JobMessage(action=JobAction.QUEUE, job_id=job.id))
+
+                if (sleep_duration := self._ctf.get_start_time() - time.time()) > 0:
+                    print(f"CTF not started yet, sleeping for {int(sleep_duration)} seconds...")
+                    await sleep(min(self._ctf.get_round_time(), sleep_duration))
+                    continue
 
                 # sleep until next tick
                 next_tick = self._ctf.get_next_tick_start()
