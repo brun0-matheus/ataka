@@ -12,7 +12,10 @@ import typer
 from requests import JSONDecodeError
 from rich import print
 from rich.text import Text
-from rich.markup import escape
+import rich.markup
+
+def escape(dt):
+    return rich.markup.escape(str(dt))
 
 
 CHECK_FOR_CMD = re.compile(r'CMD\s*\[\s*(.+)\s*\]')
