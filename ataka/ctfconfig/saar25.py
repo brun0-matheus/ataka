@@ -1,0 +1,103 @@
+from pwn import *
+import json
+import requests
+
+FLAG_SUBMIT_HOST = "submission.ctf.saarland"
+FLAG_SUBMIT_PORT = 31337
+
+# Ataka Host Domain / IP
+ATAKA_HOST = "ataka.local"  # TODO
+
+# Our own host
+OWN_HOST = "10.32.45.2"
+
+RUNLOCAL_TARGETS = ["10.1.1.1"]  # TODO 
+
+# Config for framework
+ROUND_TIME = 120  # TODO: they said 2-3 min,
+
+# format: regex, group where group 0 means the whole regex
+FLAG_REGEX = r"SAAR\{[A-Za-z0-9_-]{32}\}", 0
+
+FLAG_BATCHSIZE = 400
+
+FLAG_RATELIMIT = 5  # Wait in seconds between each call of submit_flags()
+
+START_TIME = 1762606800 + 1
+
+# IPs that are always excluded from attacks.
+STATIC_EXCLUSIONS = set([OWN_HOST])
+
+SERVICE_NAMES = [] # TODO
+
+# End config
+
+
+def get_services() -> list:
+    return SERVICE_NAMES
+
+
+def get_targets() -> dict:
+    additional_services = []  # TODO: services with no flag id 
+
+    dt = requests.get('https://scoreboard.ctf.saarland/api/attack.json').json()
+
+    teams = [t['ip'] for t in dt['teams']]
+    for service, atk_info in dt['flag_ids'].items():
+        targets[service] = []
+
+        for ip, ids in atk_info.items():
+            extra = [extra_round for flag_round, extra_round in ids.items()]
+            # I'm not sure if the key actually is the flag round 
+
+            targets[service].append({'ip': ip, 'extra': json.dumps(extra)})
+
+    for service in additional_services:
+        targets[service] = [{'ip': ip, 'extra': '[]'} for ip in teams]
+
+    return targets
+
+def submit_flags(flags) -> list:
+    results = []
+    try:
+        server = remote(FLAG_SUBMIT_HOST, FLAG_SUBMIT_PORT, timeout=5)
+        server.sendline('\n'.join(flags).encode())
+        for _ in flags:
+            response = server.recvline(timeout=5).upper()
+            if b"OK" in response:
+                results += [FlagStatus.OK]
+            elif b"INVALID FLAG" in response:
+                results += [FlagStatus.INVALID]
+            elif b"ALREADY SUBMITTED" in response:
+                results += [FlagStatus.DUPLICATE]
+            elif b"EXPIRED" in response:
+                results += [FlagStatus.INACTIVE]
+            elif b"OWN FLAG" in response:
+                results += [FlagStatus.OWNFLAG]
+            elif b'NOP TEAM' in response:
+                results += [FlagStatus.NOP]
+            else:
+                results += [FlagStatus.ERROR]
+                print(f"Invalid response: {response}")
+        server.close()
+    except Exception as e:
+        print(f"Exception: {e}", flush=True)
+        results += [FlagStatus.ERROR for _ in flags[len(results):]]
+
+    return results
+
+
+if __name__ == "__main__":
+    import pprint
+
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(get_targets())
+    pp.pprint(
+        submit_flags(
+            [
+                "ENOBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "ENOBCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "jou",
+            ]
+        )
+    )
