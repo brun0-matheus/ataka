@@ -111,7 +111,7 @@ def submit_flags(flags) -> list:
             elif b"OWN FLAG" in response:
                 results += [FlagStatus.OWNFLAG]
             elif b'NOP TEAM' in response:
-                results += [FlagStatus.NOP]
+                results += [FlagStatus.INACTIVE]
             else:
                 results += [FlagStatus.ERROR]
                 print(f"Invalid response: {response}")
