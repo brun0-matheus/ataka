@@ -6,12 +6,12 @@ FLAG_SUBMIT_HOST = "submission.ctf.saarland"
 FLAG_SUBMIT_PORT = 31337
 
 # Ataka Host Domain / IP
-ATAKA_HOST = "ataka.local"  # TODO
+ATAKA_HOST = "localhost"
 
 # Our own host
 OWN_HOST = "10.32.45.2"
 
-RUNLOCAL_TARGETS = ["10.1.1.1"]  # TODO 
+RUNLOCAL_TARGETS = ["10.32.1.2"]  
 
 # Config for framework
 ROUND_TIME = 120  # TODO: they said 2-3 min,
@@ -28,7 +28,7 @@ START_TIME = 1762606800 + 1
 # IPs that are always excluded from attacks.
 STATIC_EXCLUSIONS = set([OWN_HOST])
 
-SERVICE_NAMES = [] # TODO
+SERVICE_NAMES = ['blockrope', 'calendar', 'licenser', 'no-service', 'rceaas', 'routerploit', 'saarlandcryptogalore', 'sssg']
 
 # End config
 
