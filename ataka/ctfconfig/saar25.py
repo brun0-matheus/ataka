@@ -63,7 +63,7 @@ START_TIME = 1762606800 + 1
 # IPs that are always excluded from attacks.
 STATIC_EXCLUSIONS = set([OWN_HOST])
 
-SERVICE_NAMES = ['blockrope', 'calendar', 'licenser', 'no-service', 'rceaas', 'routerploit', 'saarlandcryptogalore', 'sssg']
+SERVICE_NAMES = ['blockrope', 'calendar', 'Licenser', 'no-service', 'RCEaaS', 'Routerploit', 'saarlandcryptogalore', 'SSSG']
 
 # End config
 
@@ -73,7 +73,8 @@ def get_services() -> list:
 
 
 def get_targets() -> dict:
-    additional_services = []  # TODO: services with no flag id 
+    additional_services = ['blockrope', 'calendar', 'saarlandcryptogalore']  # TODO: services with no flag id 
+    targets = {}
 
     dt = requests.get('https://scoreboard.ctf.saarland/api/attack.json').json()
 
@@ -126,8 +127,8 @@ if __name__ == "__main__":
     import pprint
 
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(get_targets())
-    pp.pprint(
+    pp.pprint(get_targets().keys())
+    '''pp.pprint(
         submit_flags(
             [
                 "ENOBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -135,4 +136,4 @@ if __name__ == "__main__":
                 "jou",
             ]
         )
-    )
+    )'''
